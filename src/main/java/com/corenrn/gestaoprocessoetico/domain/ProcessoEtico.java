@@ -3,6 +3,8 @@ package com.corenrn.gestaoprocessoetico.domain;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,7 +20,8 @@ public class ProcessoEtico {
 
     private int numberEthicalProcess;
     private String responsible;
-    private boolean validity;
+    private LocalDate date;
+    private String inspiraEm;
 
 
     @OneToOne
@@ -28,5 +31,8 @@ public class ProcessoEtico {
     @OneToMany(mappedBy = "processoEtico", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<FasesProcesso> fasesProcesso = new ArrayList<>();
 
-
+    public void setInspiraEm(String inspiraEm) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        this.inspiraEm = LocalDate.parse(inspiraEm, formatter).toString();
+    }
 }

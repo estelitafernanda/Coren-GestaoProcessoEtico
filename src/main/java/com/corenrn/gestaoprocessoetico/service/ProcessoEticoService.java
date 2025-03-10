@@ -1,12 +1,12 @@
 package com.corenrn.gestaoprocessoetico.service;
 
-import com.corenrn.gestaoprocessoetico.domain.Processo;
 import com.corenrn.gestaoprocessoetico.domain.ProcessoEtico;
 import com.corenrn.gestaoprocessoetico.repository.ProcessoEticoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ProcessoEticoService {
@@ -17,11 +17,31 @@ public class ProcessoEticoService {
     public ProcessoEtico salvarProcessoEtico(ProcessoEtico processo) {
         return processoEticoRepository.save(processo);
     }
+
     public ProcessoEtico findProcessoEticoById(Long id) {
         return processoEticoRepository.findById(id).orElse(null);
     }
+
     public List<ProcessoEtico> findAllProcessoEtico() {
         return processoEticoRepository.findAll();
     }
-    public void deletarProcessoEtico(Long id) {}
+
+    public ProcessoEtico atualizarProcessoEtico(Long id, ProcessoEtico processoAtualizado) {
+        Optional<ProcessoEtico> existente = processoEticoRepository.findById(id);
+        if (existente.isPresent()) {
+            ProcessoEtico processo = existente.get();
+            processo.setNumberEthicalProcess(processoAtualizado.getNumberEthicalProcess());
+            processo.setResponsible(processoAtualizado.getResponsible());
+            processo.setDate(processoAtualizado.getDate());
+            processo.setInspiraEm(processoAtualizado.getInspiraEm());
+            return processoEticoRepository.save(processo);
+        }
+        return null;
+    }
+
+    public void deletarProcessoEtico(Long id) {
+        if (processoEticoRepository.existsById(id)) {
+            processoEticoRepository.deleteById(id);
+        }
+    }
 }

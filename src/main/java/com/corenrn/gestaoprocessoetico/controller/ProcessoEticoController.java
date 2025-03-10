@@ -22,9 +22,28 @@ public class ProcessoEticoController {
         ProcessoEtico novoProcessoEtico = processoEticoService.salvarProcessoEtico(processoEtico);
         return new ResponseEntity<>(novoProcessoEtico, HttpStatus.CREATED);
     }
+
     @GetMapping
     public ResponseEntity<List<ProcessoEtico>> listarProcessoEtico() {
         List<ProcessoEtico> lista = processoEticoService.findAllProcessoEtico();
         return new ResponseEntity<>(lista, HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ProcessoEtico> buscarPorId(@PathVariable Long id) {
+        ProcessoEtico processo = processoEticoService.findProcessoEticoById(id);
+        return processo != null ? ResponseEntity.ok(processo) : ResponseEntity.notFound().build();
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ProcessoEtico> atualizarProcessoEtico(@PathVariable Long id, @RequestBody ProcessoEtico processoAtualizado) {
+        ProcessoEtico atualizado = processoEticoService.atualizarProcessoEtico(id, processoAtualizado);
+        return atualizado != null ? ResponseEntity.ok(atualizado) : ResponseEntity.notFound().build();
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletarProcessoEtico(@PathVariable Long id) {
+        processoEticoService.deletarProcessoEtico(id);
+        return ResponseEntity.noContent().build();
     }
 }
