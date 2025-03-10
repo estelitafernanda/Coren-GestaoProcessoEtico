@@ -1,4 +1,23 @@
 package com.corenrn.gestaoprocessoetico.controller;
 
+import com.corenrn.gestaoprocessoetico.domain.ProcessoEtico;
+import com.corenrn.gestaoprocessoetico.service.ProcessoEticoService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("api/processo-etico")
+@CrossOrigin(origins = "http://localhost:4200")
 public class ProcessoEticoController {
+
+    @Autowired
+    private ProcessoEticoService processoEticoService;
+
+    @PostMapping
+    public ResponseEntity<ProcessoEtico> cadastro(@RequestBody ProcessoEtico processoEtico) {
+        ProcessoEtico novoProcessoEtico = processoEticoService.salvarProcessoEtico(processoEtico);
+        return new ResponseEntity<>(novoProcessoEtico, HttpStatus.CREATED);
+    }
 }
