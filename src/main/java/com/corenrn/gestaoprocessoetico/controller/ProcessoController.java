@@ -28,4 +28,9 @@ public class ProcessoController {
         return new ResponseEntity<>(lista, HttpStatus.OK);
 
     }
+    @DeleteMapping("{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deletarProcesso(@PathVariable("id") Long id){
+        processoService.excluirProcesso(id);
+    }
 }

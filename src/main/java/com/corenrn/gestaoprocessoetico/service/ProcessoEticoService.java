@@ -6,6 +6,8 @@ import com.corenrn.gestaoprocessoetico.repository.ProcessoEticoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class ProcessoEticoService {
 
@@ -18,4 +20,8 @@ public class ProcessoEticoService {
     public ProcessoEtico findProcessoEticoById(Long id) {
         return processoEticoRepository.findById(id).orElse(null);
     }
+    public List<ProcessoEtico> findAllProcessoEtico() {
+        return processoEticoRepository.findAll();
+    }
+    public void deletarProcessoEtico(Long id) {}
 }
