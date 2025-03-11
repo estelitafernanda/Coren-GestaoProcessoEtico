@@ -28,8 +28,8 @@ public class FasesProcesso {
 
     private void atualizarInspiraEm() {
         if (processoEtico != null && processoEtico.getDate() != null && prazoFase != null) {
-            processoEtico.getDate().plusDays(prazoFase.getDayOfYear());
-
+            LocalDate novaData = processoEtico.getDate().plusDays(prazoFase.getDayOfYear());
+            processoEtico.setInspiraEm(novaData.toString());
         }
     }
 }

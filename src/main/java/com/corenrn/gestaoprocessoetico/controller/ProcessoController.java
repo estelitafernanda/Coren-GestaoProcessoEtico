@@ -23,7 +23,7 @@ public class ProcessoController {
         return new ResponseEntity<>(novoProcesso, HttpStatus.CREATED);
     }
 
-    @GetMapping("/lista")
+    @GetMapping
     public ResponseEntity<List<Processo>> listarProcessos() {
         List<Processo> lista = processoService.listaProcessos();
         return new ResponseEntity<>(lista, HttpStatus.OK);

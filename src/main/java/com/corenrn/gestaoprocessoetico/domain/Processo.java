@@ -1,8 +1,10 @@
 package com.corenrn.gestaoprocessoetico.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Data;
 
+@JsonIgnoreProperties({"processoEtico"})
 @Data
 @Entity
 @Table(name = "processo")

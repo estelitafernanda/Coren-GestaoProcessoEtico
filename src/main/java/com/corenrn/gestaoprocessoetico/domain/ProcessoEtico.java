@@ -21,6 +21,8 @@ public class ProcessoEtico {
     private int numberEthicalProcess;
     private String responsible;
     private LocalDate date;
+
+    @Column(nullable = true)
     private String inspiraEm;
 
 
@@ -32,7 +34,11 @@ public class ProcessoEtico {
     private List<FasesProcesso> fasesProcesso = new ArrayList<>();
 
     public void setInspiraEm(String inspiraEm) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        this.inspiraEm = LocalDate.parse(inspiraEm, formatter).toString();
+        if (inspiraEm != null && !inspiraEm.isEmpty()) {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            this.inspiraEm = LocalDate.parse(inspiraEm, formatter).toString();
+        } else {
+            this.inspiraEm = null;
+        }
     }
 }
