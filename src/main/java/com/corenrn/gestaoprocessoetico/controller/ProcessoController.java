@@ -37,6 +37,8 @@ public class ProcessoController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Processo> atualizarProcesso(@PathVariable Long id, @RequestBody Processo processoAtualizado) {
+        System.out.println("Recebido para atualização: " + processoAtualizado);
+        System.out.println("ID recebido: " + id);
         Processo atualizado = processoService.atualizarProcesso(id, processoAtualizado);
         return atualizado != null ? ResponseEntity.ok(atualizado) : ResponseEntity.notFound().build();
     }

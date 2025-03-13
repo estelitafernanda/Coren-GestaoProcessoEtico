@@ -2,6 +2,7 @@ package com.corenrn.gestaoprocessoetico.service;
 
 import com.corenrn.gestaoprocessoetico.domain.Processo;
 import com.corenrn.gestaoprocessoetico.repository.ProcessoRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -26,13 +27,24 @@ public class ProcessoService {
         return processoRepository.findById(id).orElse(null);
     }
 
+    @Transactional
     public Processo atualizarProcesso(Long id, Processo processoAtualizado) {
         Optional<Processo> existente = processoRepository.findById(id);
+
         if (existente.isPresent()) {
             Processo processo = existente.get();
+
+            // Atualiza os campos corretamente
+            processo.setNumberProcess(processoAtualizado.getNumberProcess());
+            processo.setNumberDenuncia(processoAtualizado.getNumberDenuncia());
+            processo.setDateDenuncia(processoAtualizado.getDateDenuncia());
+            processo.setEthicalProcess(processoAtualizado.isEthicalProcess());
+            processo.setBelongsCofen(processoAtualizado.isBelongsCofen());
+
             return processoRepository.save(processo);
         }
-        return null;
+
+        throw new RuntimeException("Processo não encontrado!");
     }
 
     public void excluirProcesso(Long id) {
