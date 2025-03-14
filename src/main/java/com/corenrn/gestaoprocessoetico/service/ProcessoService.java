@@ -52,4 +52,8 @@ public class ProcessoService {
             processoRepository.deleteById(id);
         }
     }
+    public long getTotalProcessos() {
+        return processoRepository.count();
+    }
+
 }
