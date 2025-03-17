@@ -39,4 +39,7 @@ public class FasesProcessoService {
             fasesProcessoRepository.deleteById(id);
         }
     }
+    public List<FasesProcesso> findFasesByProcessoId(Long ethicalProcessId) {
+        return fasesProcessoRepository.findByProcessoEticoEthicalProcessId(ethicalProcessId);
+    }
 }

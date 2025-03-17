@@ -1,6 +1,8 @@
 package com.corenrn.gestaoprocessoetico.controller;
 
+import com.corenrn.gestaoprocessoetico.domain.FasesProcesso;
 import com.corenrn.gestaoprocessoetico.domain.ProcessoEtico;
+import com.corenrn.gestaoprocessoetico.service.FasesProcessoService;
 import com.corenrn.gestaoprocessoetico.service.ProcessoEticoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,6 +18,16 @@ public class ProcessoEticoController {
 
     @Autowired
     private ProcessoEticoService processoEticoService;
+    private final FasesProcessoService fasesProcessoService;
+
+    public ProcessoEticoController(FasesProcessoService fasesProcessoService) {
+        this.fasesProcessoService = fasesProcessoService;
+    }
+    @GetMapping("/{id}/fases")
+    public ResponseEntity<List<FasesProcesso>> listarFasesDoProcesso(@PathVariable Long id) {
+        List<FasesProcesso> fases = fasesProcessoService.findFasesByProcessoId(id);
+        return ResponseEntity.ok(fases);
+    }
 
     @PostMapping
     public ResponseEntity<ProcessoEtico> cadastroProcessoEtico(@RequestBody ProcessoEtico processoEtico) {
