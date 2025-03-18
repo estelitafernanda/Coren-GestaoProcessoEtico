@@ -1,6 +1,7 @@
 package com.corenrn.gestaoprocessoetico.domain;
 
-
+import com.corenrn.gestaoprocessoetico.domain.ProcessoEtico;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -19,13 +20,13 @@ public class FasesProcesso {
     private String prazoFase;
 
     @ManyToOne
+    @JsonIgnore
     @JoinColumn(name = "ethical_process_id", nullable = false)
     private ProcessoEtico processoEtico;
 
     public void setPrazoFase(String prazoFase) {
         if (prazoFase != null && !prazoFase.isEmpty()) {
             try {
-                // Validando se a string pode ser convertida para data antes de armazenar
                 LocalDate.parse(prazoFase, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
                 this.prazoFase = prazoFase;
             } catch (Exception e) {
@@ -34,10 +35,13 @@ public class FasesProcesso {
         } else {
             this.prazoFase = null;
         }
+    }
 
+    @PrePersist
+    @PreUpdate
+    public void atualizarProcessoEtico() {
         if (processoEtico != null) {
             processoEtico.atualizarInspiraEm();
         }
     }
-
 }

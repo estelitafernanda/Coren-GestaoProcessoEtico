@@ -18,6 +18,15 @@ public class FasesProcessoController {
     @Autowired
     private FasesProcessoService fasesProcessoService;
 
+    @PutMapping("/{id}/prazo")
+    public ResponseEntity<FasesProcesso> atualizarPrazoFase(
+            @PathVariable Long id,
+            @RequestParam String novoPrazo) {
+
+        FasesProcesso faseAtualizada = fasesProcessoService.atualizarPrazoFase(id, novoPrazo);
+        return ResponseEntity.ok(faseAtualizada);
+    }
+
     @PostMapping
     public ResponseEntity<FasesProcesso> cadastroFaseProcesso(@RequestBody FasesProcesso fasesProcesso) {
         FasesProcesso novaFase = fasesProcessoService.saveFases(fasesProcesso);
