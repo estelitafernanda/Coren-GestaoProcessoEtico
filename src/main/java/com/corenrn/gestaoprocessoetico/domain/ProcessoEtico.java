@@ -38,33 +38,18 @@ public class ProcessoEtico {
 
     public void atualizarInspiraEm() {
         if (isTemFases()) {
-            LocalDate maxPrazo = fasesProcesso.stream()
-                    .map(f -> {
+            int totalDias = fasesProcesso.stream()
+                    .mapToInt(f -> {
                         try {
-                            return LocalDate.parse(f.getPrazoFase(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+                            return Integer.parseInt(f.getPrazoFase());
                         } catch (Exception e) {
-                            return null; // Ignorar valores inválidos
+                            return 0;
                         }
                     })
-                    .filter(date -> date != null)
-                    .max(LocalDate::compareTo)
-                    .orElse(null);
+                    .sum();
 
-            this.inspiraEm = (maxPrazo != null) ? maxPrazo.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) : null;
-        } else {
-            this.inspiraEm = null;
-        }
-    }
-
-    public void setInspiraEm(String inspiraEm) {
-        if (inspiraEm != null && !inspiraEm.isEmpty()) {
-            try {
-                // Verifica se a string está no formato correto antes de atribuir
-                LocalDate.parse(inspiraEm, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-                this.inspiraEm = inspiraEm;
-            } catch (Exception e) {
-                throw new IllegalArgumentException("Formato inválido para inspiraEm! Use yyyy-MM-dd");
-            }
+            LocalDate novaDataInspira = this.date.plusDays(totalDias);
+            this.inspiraEm = novaDataInspira.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
         } else {
             this.inspiraEm = null;
         }

@@ -1,6 +1,10 @@
 package com.corenrn.gestaoprocessoetico.controller;
 
 import com.corenrn.gestaoprocessoetico.domain.FasesProcesso;
+import com.corenrn.gestaoprocessoetico.domain.ProcessoEtico;
+import com.corenrn.gestaoprocessoetico.dto.FasesProcessoDTO;
+import com.corenrn.gestaoprocessoetico.repository.FasesProcessoRepository;
+import com.corenrn.gestaoprocessoetico.repository.ProcessoEticoRepository;
 import com.corenrn.gestaoprocessoetico.service.FasesProcessoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,6 +22,12 @@ public class FasesProcessoController {
     @Autowired
     private FasesProcessoService fasesProcessoService;
 
+    @Autowired
+    private FasesProcessoRepository fasesProcessoRepository;
+
+    @Autowired
+    private ProcessoEticoRepository processoEticoRepository;
+
     @PutMapping("/{id}/prazo")
     public ResponseEntity<FasesProcesso> atualizarPrazoFase(
             @PathVariable Long id,
@@ -28,10 +38,30 @@ public class FasesProcessoController {
     }
 
     @PostMapping
-    public ResponseEntity<FasesProcesso> cadastroFaseProcesso(@RequestBody FasesProcesso fasesProcesso) {
-        FasesProcesso novaFase = fasesProcessoService.saveFases(fasesProcesso);
-        return new ResponseEntity<>(novaFase, HttpStatus.CREATED);
+    public ResponseEntity<?> cadastrarFase(@RequestBody FasesProcessoDTO dto) {
+        System.out.println("Recebido JSON: " + dto);
+
+        if (dto.getProcessoEtico() == null) {
+            throw new RuntimeException("O campo 'processoEtico' está ausente!");
+        }
+
+        ProcessoEtico processoEtico = processoEticoRepository.findById(dto.getProcessoEtico())
+                .orElseThrow(() -> new RuntimeException("Processo Ético não encontrado!"));
+
+        FasesProcesso novaFase = new FasesProcesso();
+        novaFase.setNameFase(dto.getNameFase());
+        novaFase.setPrazoFase(dto.getPrazoFase());
+        novaFase.setProcessoEtico(processoEtico);
+
+        fasesProcessoRepository.save(novaFase);
+
+        processoEtico.atualizarInspiraEm();
+        processoEticoRepository.save(processoEtico);
+
+        return ResponseEntity.ok("Fase cadastrada com sucesso!");
     }
+
+
     @GetMapping
     public ResponseEntity<List<FasesProcesso>> listarFasesProcesso() {
         List<FasesProcesso> lista = fasesProcessoService.findAllFases();

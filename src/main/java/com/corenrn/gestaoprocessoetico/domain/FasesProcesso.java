@@ -2,6 +2,7 @@ package com.corenrn.gestaoprocessoetico.domain;
 
 import com.corenrn.gestaoprocessoetico.domain.ProcessoEtico;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -21,27 +22,9 @@ public class FasesProcesso {
 
     @ManyToOne
     @JsonIgnore
+    @JsonProperty("processoEtico")
     @JoinColumn(name = "ethical_process_id", nullable = false)
     private ProcessoEtico processoEtico;
 
-    public void setPrazoFase(String prazoFase) {
-        if (prazoFase != null && !prazoFase.isEmpty()) {
-            try {
-                LocalDate.parse(prazoFase, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-                this.prazoFase = prazoFase;
-            } catch (Exception e) {
-                throw new IllegalArgumentException("Formato inválido para prazoFase! Use yyyy-MM-dd");
-            }
-        } else {
-            this.prazoFase = null;
-        }
-    }
 
-    @PrePersist
-    @PreUpdate
-    public void atualizarProcessoEtico() {
-        if (processoEtico != null) {
-            processoEtico.atualizarInspiraEm();
-        }
-    }
 }
