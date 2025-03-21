@@ -28,16 +28,21 @@ public class ProcessoEticoService {
     }
 
     public ProcessoEtico atualizarProcessoEtico(Long id, ProcessoEtico processoAtualizado) {
-        Optional<ProcessoEtico> existente = processoEticoRepository.findById(id);
-        if (existente.isPresent()) {
-            ProcessoEtico processo = existente.get();
-            processo.setNumberEthicalProcess(processoAtualizado.getNumberEthicalProcess());
-            processo.setResponsible(processoAtualizado.getResponsible());
-            processo.setDate(processoAtualizado.getDate());
-            processo.setInspiraEm(processoAtualizado.getInspiraEm());
-            return processoEticoRepository.save(processo);
+        Optional<ProcessoEtico> optionalProcesso = processoEticoRepository.findById(id);
+
+        if (optionalProcesso.isPresent()) {
+            ProcessoEtico processoExistente = optionalProcesso.get();
+
+            processoExistente.setNumberEthicalProcess(processoAtualizado.getNumberEthicalProcess());
+            processoExistente.setResponsible(processoAtualizado.getResponsible());
+            processoExistente.setDate(processoAtualizado.getDate());
+
+            processoExistente.atualizarInspiraEm();
+
+            return processoEticoRepository.save(processoExistente);
+        } else {
+            return null;
         }
-        return null;
     }
 
     public void deletarProcessoEtico(Long id) {

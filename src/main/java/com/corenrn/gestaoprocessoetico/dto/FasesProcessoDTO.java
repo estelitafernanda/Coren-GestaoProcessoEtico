@@ -8,5 +8,5 @@ import lombok.Setter;
 public class FasesProcessoDTO {
     private String nameFase;
     private String prazoFase;
-    private Long processoEtico;
+    private ProcessoEticoDTO processoEtico;
 }

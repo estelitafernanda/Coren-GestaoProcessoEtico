@@ -1,16 +1,14 @@
 package com.corenrn.gestaoprocessoetico.domain;
 
-import com.corenrn.gestaoprocessoetico.domain.ProcessoEtico;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
-import lombok.Data;
-
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
-@Data
+@Getter
+@Setter
 @Table(name="fasesprocesso")
 public class FasesProcesso {
 

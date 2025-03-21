@@ -32,12 +32,29 @@ public class FasesProcessoService {
     }
 
     public FasesProcesso updateFasesProcesso(Long id, FasesProcesso fasesProcesso) {
-        if (fasesProcessoRepository.existsById(id)) {
-            fasesProcesso.setFasesId(id);
-            return fasesProcessoRepository.save(fasesProcesso);
+        Optional<FasesProcesso> optionalFase = fasesProcessoRepository.findById(id);
+
+        if (optionalFase.isPresent()) {
+            FasesProcesso faseExistente = optionalFase.get();
+
+            faseExistente.setNameFase(fasesProcesso.getNameFase());
+            faseExistente.setPrazoFase(fasesProcesso.getPrazoFase());
+
+
+            FasesProcesso faseAtualizada = fasesProcessoRepository.save(faseExistente);
+
+            ProcessoEtico processoEtico = faseExistente.getProcessoEtico();
+            if (processoEtico != null) {
+                processoEtico.atualizarInspiraEm();
+                processoEticoRepository.save(processoEtico);
+            }
+
+            return faseAtualizada;
         }
+
         return null;
     }
+
     public FasesProcesso atualizarPrazoFase(Long fasesId, String novoPrazo) {
         FasesProcesso fase = fasesProcessoRepository.findById(fasesId)
                 .orElseThrow(() -> new RuntimeException("Fase não encontrada"));

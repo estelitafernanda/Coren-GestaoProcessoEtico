@@ -45,8 +45,9 @@ public class FasesProcessoController {
             throw new RuntimeException("O campo 'processoEtico' está ausente!");
         }
 
-        ProcessoEtico processoEtico = processoEticoRepository.findById(dto.getProcessoEtico())
+        ProcessoEtico processoEtico = processoEticoRepository.findById(dto.getProcessoEtico().getEthicalProcessId())
                 .orElseThrow(() -> new RuntimeException("Processo Ético não encontrado!"));
+
 
         FasesProcesso novaFase = new FasesProcesso();
         novaFase.setNameFase(dto.getNameFase());
@@ -70,8 +71,16 @@ public class FasesProcessoController {
     @GetMapping("/{id}")
     public ResponseEntity<FasesProcesso> buscarFaseProcessoPorId(@PathVariable("id") Long id) {
         Optional<FasesProcesso> faseProcesso = fasesProcessoService.findFasesProcessoById(id);
-        return faseProcesso.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+
+        if (faseProcesso.isPresent()) {
+            System.out.println("Fase encontrada: " + faseProcesso.get());
+            return ResponseEntity.ok(faseProcesso.get());
+        } else {
+            System.out.println("Fase não encontrada para o ID: " + id);
+            return ResponseEntity.notFound().build();
+        }
     }
+
     @PutMapping("/{id}")
     public ResponseEntity<FasesProcesso> atualizarFaseProcesso(@PathVariable("id") Long id,
                                                                @RequestBody FasesProcesso fasesProcesso) {
