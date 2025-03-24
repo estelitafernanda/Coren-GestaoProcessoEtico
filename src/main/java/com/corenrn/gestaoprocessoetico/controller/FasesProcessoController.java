@@ -41,11 +41,11 @@ public class FasesProcessoController {
     public ResponseEntity<?> cadastrarFase(@RequestBody FasesProcessoDTO dto) {
         System.out.println("Recebido JSON: " + dto);
 
-        if (dto.getProcessoEtico() == null) {
+        if (dto.getEthicalProcessoId() == null) {
             throw new RuntimeException("O campo 'processoEtico' está ausente!");
         }
 
-        ProcessoEtico processoEtico = processoEticoRepository.findById(dto.getProcessoEtico().getEthicalProcessId())
+        ProcessoEtico processoEtico = processoEticoRepository.findById(dto.getEthicalProcessoId())
                 .orElseThrow(() -> new RuntimeException("Processo Ético não encontrado!"));
 
 
@@ -85,10 +85,13 @@ public class FasesProcessoController {
     public ResponseEntity<FasesProcesso> atualizarFaseProcesso(@PathVariable("id") Long id,
                                                                @RequestBody FasesProcesso fasesProcesso) {
         FasesProcesso faseAtualizada = fasesProcessoService.updateFasesProcesso(id, fasesProcesso);
+
         if (faseAtualizada != null) {
-            return new ResponseEntity<>(faseAtualizada, HttpStatus.OK);
+            System.out.println("Fase atualizada com sucesso: " + faseAtualizada.getFasesId() +
+                    " do processo: " + faseAtualizada.getProcessoEtico().getEthicalProcessId());
+            return ResponseEntity.ok(faseAtualizada);
         } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return ResponseEntity.notFound().build();
         }
     }
     @DeleteMapping("/{id}")

@@ -19,7 +19,6 @@ public class FasesProcesso {
     private String prazoFase;
 
     @ManyToOne
-    @JsonIgnore
     @JsonProperty("processoEtico")
     @JoinColumn(name = "ethical_process_id", nullable = false)
     private ProcessoEtico processoEtico;

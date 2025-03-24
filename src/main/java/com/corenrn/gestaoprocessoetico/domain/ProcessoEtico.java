@@ -1,5 +1,6 @@
 package com.corenrn.gestaoprocessoetico.domain;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.Getter;
@@ -37,6 +38,7 @@ public class ProcessoEtico {
     private Processo processo;
 
     @OneToMany(mappedBy = "processoEtico", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<FasesProcesso> fasesProcesso = new ArrayList<>();
 
     public void atualizarInspiraEm() {
