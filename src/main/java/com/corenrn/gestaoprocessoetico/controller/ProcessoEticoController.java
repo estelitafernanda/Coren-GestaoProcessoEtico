@@ -1,15 +1,17 @@
 package com.corenrn.gestaoprocessoetico.controller;
 
-import com.corenrn.gestaoprocessoetico.domain.FasesProcesso;
 import com.corenrn.gestaoprocessoetico.domain.ProcessoEtico;
-import com.corenrn.gestaoprocessoetico.service.FasesProcessoService;
+import com.corenrn.gestaoprocessoetico.dto.ProcessoEticoDTO;
+import com.corenrn.gestaoprocessoetico.dto.FasesProcessoDTO;
 import com.corenrn.gestaoprocessoetico.service.ProcessoEticoService;
+import com.corenrn.gestaoprocessoetico.service.FasesProcessoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("api/processo-etico")
@@ -18,40 +20,56 @@ public class ProcessoEticoController {
 
     @Autowired
     private ProcessoEticoService processoEticoService;
-    private final FasesProcessoService fasesProcessoService;
 
-    public ProcessoEticoController(FasesProcessoService fasesProcessoService) {
-        this.fasesProcessoService = fasesProcessoService;
-    }
+    @Autowired
+    private FasesProcessoService fasesProcessoService;
+
     @GetMapping("/{id}/fases")
-    public ResponseEntity<List<FasesProcesso>> listarFasesDoProcesso(@PathVariable Long id) {
-        List<FasesProcesso> fases = fasesProcessoService.findFasesByProcessoId(id);
+    public ResponseEntity<List<FasesProcessoDTO>> listarFasesDoProcesso(@PathVariable Long id) {
+        List<FasesProcessoDTO> fases = fasesProcessoService.findFasesByProcessoId(id)
+                .stream()
+                .map(FasesProcessoDTO::new)
+                .collect(Collectors.toList());
         return ResponseEntity.ok(fases);
     }
 
     @PostMapping
-    public ResponseEntity<ProcessoEtico> cadastroProcessoEtico(@RequestBody ProcessoEtico processoEtico) {
-        ProcessoEtico novoProcessoEtico = processoEticoService.salvarProcessoEtico(processoEtico);
-        return new ResponseEntity<>(novoProcessoEtico, HttpStatus.CREATED);
+    public ResponseEntity<?> cadastroProcessoEtico(@RequestBody ProcessoEtico processoEtico) {
+        try {
+            ProcessoEtico novoProcessoEtico = processoEticoService.salvarProcessoEtico(processoEtico);
+            return new ResponseEntity<>(new ProcessoEticoDTO(novoProcessoEtico), HttpStatus.CREATED);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao cadastrar processo ético.");
+        }
     }
+
 
     @GetMapping
-    public ResponseEntity<List<ProcessoEtico>> listarProcessoEtico() {
-        List<ProcessoEtico> lista = processoEticoService.findAllProcessoEtico();
-        return new ResponseEntity<>(lista, HttpStatus.OK);
+    public ResponseEntity<List<ProcessoEticoDTO>> listarProcessoEtico() {
+        List<ProcessoEticoDTO> lista = processoEticoService.findAllProcessoEtico()
+                .stream()
+                .map(ProcessoEticoDTO::new)
+                .toList();
+        return ResponseEntity.ok(lista);
     }
 
+
     @GetMapping("/{id}")
-    public ResponseEntity<ProcessoEtico> buscarPorId(@PathVariable Long id) {
+    public ResponseEntity<ProcessoEticoDTO> buscarPorId(@PathVariable Long id) {
         ProcessoEtico processo = processoEticoService.findProcessoEticoById(id);
-        return processo != null ? ResponseEntity.ok(processo) : ResponseEntity.notFound().build();
+        return processo != null ? ResponseEntity.ok(new ProcessoEticoDTO(processo)) : ResponseEntity.notFound().build();
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ProcessoEtico> atualizarProcessoEtico(@PathVariable Long id, @RequestBody ProcessoEtico processoAtualizado) {
+    public ResponseEntity<ProcessoEticoDTO> atualizarProcessoEtico(@PathVariable Long id, @RequestBody ProcessoEtico processoAtualizado) {
+        System.out.println("Recebendo atualização do Processo Ético: " + processoAtualizado);
+
         ProcessoEtico atualizado = processoEticoService.atualizarProcessoEtico(id, processoAtualizado);
-        return atualizado != null ? ResponseEntity.ok(atualizado) : ResponseEntity.notFound().build();
+        return atualizado != null ? ResponseEntity.ok(new ProcessoEticoDTO(atualizado)) : ResponseEntity.notFound().build();
     }
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletarProcessoEtico(@PathVariable Long id) {

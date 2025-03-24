@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("api/fases-processo")
@@ -29,12 +30,9 @@ public class FasesProcessoController {
     private ProcessoEticoRepository processoEticoRepository;
 
     @PutMapping("/{id}/prazo")
-    public ResponseEntity<FasesProcesso> atualizarPrazoFase(
-            @PathVariable Long id,
-            @RequestParam String novoPrazo) {
-
+    public ResponseEntity<FasesProcessoDTO> atualizarPrazoFase(@PathVariable Long id, @RequestParam String novoPrazo) {
         FasesProcesso faseAtualizada = fasesProcessoService.atualizarPrazoFase(id, novoPrazo);
-        return ResponseEntity.ok(faseAtualizada);
+        return ResponseEntity.ok(new FasesProcessoDTO(faseAtualizada));
     }
 
     @PostMapping
@@ -42,12 +40,11 @@ public class FasesProcessoController {
         System.out.println("Recebido JSON: " + dto);
 
         if (dto.getEthicalProcessoId() == null) {
-            throw new RuntimeException("O campo 'processoEtico' está ausente!");
+            throw new RuntimeException("O campo 'ethicalProcessoId' está ausente!");
         }
 
         ProcessoEtico processoEtico = processoEticoRepository.findById(dto.getEthicalProcessoId())
                 .orElseThrow(() -> new RuntimeException("Processo Ético não encontrado!"));
-
 
         FasesProcesso novaFase = new FasesProcesso();
         novaFase.setNameFase(dto.getNameFase());
@@ -59,41 +56,45 @@ public class FasesProcessoController {
         processoEtico.atualizarInspiraEm();
         processoEticoRepository.save(processoEtico);
 
-        return ResponseEntity.ok("Fase cadastrada com sucesso!");
+        return ResponseEntity.ok(new FasesProcessoDTO(novaFase));
     }
-
 
     @GetMapping
-    public ResponseEntity<List<FasesProcesso>> listarFasesProcesso() {
-        List<FasesProcesso> lista = fasesProcessoService.findAllFases();
+    public ResponseEntity<List<FasesProcessoDTO>> listarFasesProcesso() {
+        List<FasesProcessoDTO> lista = fasesProcessoService.findAllFases()
+                .stream()
+                .map(FasesProcessoDTO::new)
+                .collect(Collectors.toList());
         return new ResponseEntity<>(lista, HttpStatus.OK);
     }
+
     @GetMapping("/{id}")
-    public ResponseEntity<FasesProcesso> buscarFaseProcessoPorId(@PathVariable("id") Long id) {
+    public ResponseEntity<FasesProcessoDTO> buscarFaseProcessoPorId(@PathVariable("id") Long id) {
         Optional<FasesProcesso> faseProcesso = fasesProcessoService.findFasesProcessoById(id);
 
         if (faseProcesso.isPresent()) {
-            System.out.println("Fase encontrada: " + faseProcesso.get());
-            return ResponseEntity.ok(faseProcesso.get());
+            return ResponseEntity.ok(new FasesProcessoDTO(faseProcesso.get()));
         } else {
-            System.out.println("Fase não encontrada para o ID: " + id);
             return ResponseEntity.notFound().build();
         }
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<FasesProcesso> atualizarFaseProcesso(@PathVariable("id") Long id,
-                                                               @RequestBody FasesProcesso fasesProcesso) {
-        FasesProcesso faseAtualizada = fasesProcessoService.updateFasesProcesso(id, fasesProcesso);
-
-        if (faseAtualizada != null) {
-            System.out.println("Fase atualizada com sucesso: " + faseAtualizada.getFasesId() +
-                    " do processo: " + faseAtualizada.getProcessoEtico().getEthicalProcessId());
-            return ResponseEntity.ok(faseAtualizada);
-        } else {
+    public ResponseEntity<FasesProcessoDTO> atualizarFaseProcesso(@PathVariable("id") Long id,
+                                                                  @RequestBody FasesProcessoDTO dto) {
+        Optional<FasesProcesso> faseOptional = fasesProcessoService.findFasesProcessoById(id);
+        if (faseOptional.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
+
+        FasesProcesso fase = faseOptional.get();
+        fase.setNameFase(dto.getNameFase());
+        fase.setPrazoFase(dto.getPrazoFase());
+
+        FasesProcesso faseAtualizada = fasesProcessoService.updateFasesProcesso(id, fase);
+        return ResponseEntity.ok(new FasesProcessoDTO(faseAtualizada));
     }
+
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deletarFaseProcesso(@PathVariable("id") Long id) {

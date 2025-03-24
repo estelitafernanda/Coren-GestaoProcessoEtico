@@ -13,10 +13,22 @@ public class FasesProcessoDTO {
     private String prazoFase;
     private Long ethicalProcessoId;
 
+    public FasesProcessoDTO() {
+    }
+
+    public FasesProcessoDTO(Long fasesId, String nameFase, String prazoFase, Long ethicalProcessoId) {
+        this.fasesId = fasesId;
+        this.nameFase = nameFase;
+        this.prazoFase = prazoFase;
+        this.ethicalProcessoId = ethicalProcessoId;
+    }
+
     public FasesProcessoDTO(FasesProcesso fasesProcesso) {
         this.fasesId = fasesProcesso.getFasesId();
         this.nameFase = fasesProcesso.getNameFase();
         this.prazoFase = fasesProcesso.getPrazoFase();
         this.ethicalProcessoId = fasesProcesso.getProcessoEtico().getEthicalProcessId();
     }
+
 }
+
