@@ -3,6 +3,7 @@ package com.corenrn.gestaoprocessoetico.controller;
 import com.corenrn.gestaoprocessoetico.domain.ProcessoEtico;
 import com.corenrn.gestaoprocessoetico.dto.ProcessoEticoDTO;
 import com.corenrn.gestaoprocessoetico.dto.FasesProcessoDTO;
+import com.corenrn.gestaoprocessoetico.exception.ProcessoEticoExistenteException;
 import com.corenrn.gestaoprocessoetico.service.ProcessoEticoService;
 import com.corenrn.gestaoprocessoetico.service.FasesProcessoService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,17 +33,30 @@ public class ProcessoEticoController {
                 .collect(Collectors.toList());
         return ResponseEntity.ok(fases);
     }
-
+    @GetMapping("/exists/{processId}")
+    public ResponseEntity<Boolean> existsByProcessId(@PathVariable Long processId) {
+        return ResponseEntity.ok(processoEticoService.existsByProcessId(processId));
+    }
     @PostMapping
     public ResponseEntity<?> cadastroProcessoEtico(@RequestBody ProcessoEtico processoEtico) {
+        System.out.println("Recebendo requisição para cadastrar: " + processoEtico);
         try {
             ProcessoEtico novoProcessoEtico = processoEticoService.salvarProcessoEtico(processoEtico);
             return new ResponseEntity<>(new ProcessoEticoDTO(novoProcessoEtico), HttpStatus.CREATED);
-        } catch (RuntimeException e) {
+        } catch (ProcessoEticoExistenteException e) {
+            System.out.println("Erro: Processo já existe!");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao cadastrar processo ético.");
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro desconhecido ao cadastrar processo ético.");
         }
+    }
+
+    @GetMapping("/buscar")
+    public ResponseEntity<ProcessoEtico> findByProcessId(@RequestParam Long processId) {
+        return processoEticoService.findByProcessId(processId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
 

@@ -1,8 +1,11 @@
 package com.corenrn.gestaoprocessoetico.service;
 
+import com.corenrn.gestaoprocessoetico.domain.FasesProcesso;
 import com.corenrn.gestaoprocessoetico.domain.ProcessoEtico;
+import com.corenrn.gestaoprocessoetico.exception.ProcessoEticoExistenteException;
 import com.corenrn.gestaoprocessoetico.repository.FasesProcessoRepository;
 import com.corenrn.gestaoprocessoetico.repository.ProcessoEticoRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,21 +24,22 @@ public class ProcessoEticoService {
     private FasesProcessoRepository fasesProcessoRepository;
 
     public ProcessoEtico salvarProcessoEtico(ProcessoEtico processo) {
-        if (processo.getProcesso() == null || processo.getProcesso().getProcessId() == null) {
-            throw new IllegalArgumentException("O processo deve ser informado!");
-        }
+        if (processo.getProcesso() != null && processo.getProcesso().getProcessId() != null) {
+            System.out.println("Verificando processo ético para o processId: " + processo.getProcesso().getProcessId());
+            Optional<ProcessoEtico> existente = processoEticoRepository.findByProcessId(processo.getProcesso().getProcessId());
 
-        // Verifica se já existe um processo ético vinculado ao mesmo processo
-        Optional<ProcessoEtico> existente = processoEticoRepository.findByProcessoId(processo.getProcesso().getProcessId());
-        if (existente.isPresent()) {
-            throw new RuntimeException("Já existe um processo ético vinculado a este processo!");
+            if (existente.isPresent()) {
+                throw new ProcessoEticoExistenteException("Já existe um processo ético vinculado a este processo!");
+            }
         }
 
         return processoEticoRepository.save(processo);
     }
 
-    public ProcessoEtico findProcessoEticoById(Long id) {
-        return processoEticoRepository.findById(id).orElse(null);
+
+
+    public ProcessoEtico findProcessoEticoById(Long processoEticoId) {
+        return processoEticoRepository.findById(processoEticoId).orElse(null);
     }
 
     public List<ProcessoEtico> findAllProcessoEtico() {
@@ -61,15 +65,29 @@ public class ProcessoEticoService {
     }
 
     @Transactional
-    public void deletarProcessoEtico(Long id) {
-        if (processoEticoRepository.existsById(id)) {
-            fasesProcessoRepository.deleteByProcessoId(id);
-            processoEticoRepository.deleteById(id);
+    public void deletarProcessoEtico(Long ethicalProcessId) {
+        ProcessoEtico processoEtico = processoEticoRepository.findById(ethicalProcessId)
+                .orElseThrow(() -> new EntityNotFoundException("Processo Ético não encontrado"));
+
+        if (processoEtico.isTemFases()) {
+            for (FasesProcesso fase : processoEtico.getFasesProcesso()) {
+                fasesProcessoRepository.delete(fase);
+            }
         }
+
+        processoEticoRepository.delete(processoEtico);
+    }
+
+
+    public boolean existsByProcessId(Long processId) {
+        return processoEticoRepository.findByProcessId(processId).isPresent();
     }
 
     public long contarProcessosEticos() {
         return processoEticoRepository.count();
+    }
+    public Optional<ProcessoEtico> findByProcessId(Long processId) {
+        return processoEticoRepository.findByProcessId(processId);
     }
 
     public List<ProcessoEtico> getProcessosPertoDeExpirar(int dias) {

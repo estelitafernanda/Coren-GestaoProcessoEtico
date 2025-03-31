@@ -34,7 +34,6 @@ public class ProcessoService {
         if (existente.isPresent()) {
             Processo processo = existente.get();
 
-            // Atualiza os campos corretamente
             processo.setNumberProcess(processoAtualizado.getNumberProcess());
             processo.setNumberDenuncia(processoAtualizado.getNumberDenuncia());
             processo.setDateDenuncia(processoAtualizado.getDateDenuncia());
